@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://ck8r5v7w2n9t3"]
+
+[ext_resource type="TileSet" path="res://AttackOverlay/attack_overlay_tileset.tres" id="1"]
+[ext_resource type="Script" path="res://AttackOverlay/AttackOverlay.gd" id="2"]
+
+[node name="AttackOverlay" type="TileMapLayer"]
+modulate = Color(1, 1, 1, 0.2)
+light_mask = 0
+tile_set = ExtResource("1")
+script = ExtResource("2")
