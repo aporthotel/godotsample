@@ -1,0 +1,91 @@
+[gd_scene load_steps=9 format=3 uid="uid://d4mhjq651egt"]
+
+[ext_resource type="Script" uid="uid://jotq2dutaxhq" path="res://Units/Unit.gd" id="1"]
+[ext_resource type="Resource" uid="uid://b7almwqj75cry" path="res://GameBoard/Grid.tres" id="2"]
+[ext_resource type="Texture2D" uid="uid://b5ghlcxjxmmgw" path="res://Units/unit_shadow.svg" id="3"]
+[ext_resource type="Script" uid="uid://nhal8fo1p50m" path="res://Resources/UnitStats.gd" id="3_d1yal"]
+
+[sub_resource type="Resource" id="Resource_amrl3"]
+script = ExtResource("3_d1yal")
+max_hp = 100
+current_hp = 100
+max_ap = 2
+current_ap = 2
+movement_cost = 1
+attack_cost = 1
+move_range = 6
+move_speed = 600.0
+moves_remaining = 6
+attack_damage = 25
+attack_range = 1
+defense = 5
+accuracy = 90
+evasion = 10
+critical_chance = 10
+critical_multiplier = 1.5
+is_alive = true
+has_moved = false
+has_attacked = false
+can_counter = true
+
+[sub_resource type="Animation" id="1"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("PathFollow2D/Sprite:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="2"]
+length = 1.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("PathFollow2D/Sprite:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.7),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1.5, 1.5, 1.5, 1), Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_5dan3"]
+_data = {
+&"idle": SubResource("1"),
+&"selected": SubResource("2")
+}
+
+[node name="Unit" type="Path2D"]
+position = Vector2(40, 40)
+script = ExtResource("1")
+grid = ExtResource("2")
+stats = SubResource("Resource_amrl3")
+
+[node name="PathFollow2D" type="PathFollow2D" parent="."]
+rotates = false
+loop = false
+
+[node name="Shadow" type="Sprite2D" parent="PathFollow2D"]
+modulate = Color(0.101961, 0.109804, 0.0901961, 0.329412)
+position = Vector2(0, 5.43238)
+texture = ExtResource("3")
+
+[node name="Sprite" type="Sprite2D" parent="PathFollow2D"]
+position = Vector2(2, 0)
+scale = Vector2(0.24, 0.24)
+offset = Vector2(-3.8147e-06, -185)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_5dan3")
+}
+autoplay = "idle"
