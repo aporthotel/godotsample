@@ -1,0 +1,86 @@
+## Unit class for tactical RPG
+## Compatible with Godot 4.4.1
+@tool
+class_name Unit
+extends Path2D
+
+signal walk_finished
+
+@export var grid: Grid
+@export var move_range := 6
+@export var move_speed := 200.0
+@export var skin: Texture2D:
+	set(value):
+		skin = value
+		if not _sprite:
+			await ready
+		_sprite.texture = value
+
+@export var skin_offset := Vector2.ZERO:
+	set(value):
+		skin_offset = value
+		if not _sprite:
+			await ready
+		_sprite.position = value
+
+var cell := Vector2i.ZERO:
+	set(value):
+		cell = grid.grid_clamp(value) if grid else value
+
+var is_selected := false:
+	set(value):
+		is_selected = value
+		if is_selected:
+			_anim_player.play("selected")
+		else:
+			_anim_player.play("idle")
+
+var _is_walking := false:
+	set(value):
+		_is_walking = value
+		set_process(_is_walking)
+
+@onready var _sprite: Sprite2D = $PathFollow2D/Sprite
+@onready var _anim_player: AnimationPlayer = $AnimationPlayer
+@onready var _path_follow: PathFollow2D = $PathFollow2D
+
+func walk_along(path: PackedVector2Array) -> void:
+	if path.is_empty() or not grid:
+		return
+	
+	curve.clear_points()
+	curve.add_point(Vector2.ZERO)
+	
+	for i in range(1, path.size()):
+		var point = path[i]
+		var world_pos = grid.calculate_map_position(Vector2i(point))
+		curve.add_point(world_pos - position)
+	
+	cell = Vector2i(path[-1])
+	_is_walking = true
+
+func _process(delta: float) -> void:
+	if not _is_walking:
+		return
+		
+	_path_follow.progress += move_speed * delta
+	
+	if _path_follow.progress >= curve.get_baked_length():
+		_is_walking = false
+		_path_follow.progress = 0.0
+		position = grid.calculate_map_position(cell)
+		curve.clear_points()
+		walk_finished.emit()
+
+# Make sure _ready() has this:
+
+func _ready() -> void:
+	set_process(false)
+	_path_follow.rotates = false
+	
+	if grid:
+		cell = grid.calculate_grid_coordinates(position)
+		position = grid.calculate_map_position(cell)
+	
+	if not Engine.is_editor_hint():
+		curve = Curve2D.new()
